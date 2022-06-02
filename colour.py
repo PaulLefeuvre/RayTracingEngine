@@ -1,5 +1,6 @@
 from vec3 import vec3
 from rtweekend import clamp
+import math
 import sys
 
 def write_colour(stream, pixel_colour, samples_per_pixel):
@@ -8,9 +9,9 @@ def write_colour(stream, pixel_colour, samples_per_pixel):
     b = pixel_colour.z()
 
     scale = 1.0 / samples_per_pixel
-    r *= scale
-    g *= scale
-    b *= scale
+    r = math.sqrt(scale * r)
+    g = math.sqrt(scale * g)
+    b = math.sqrt(scale * b)
 
     print('%s %s %s\n' % (int(256 * clamp(r, 0.0, 0.999)),
                             int(256 * clamp(g, 0.0, 0.999)),

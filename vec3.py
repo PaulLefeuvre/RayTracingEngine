@@ -75,11 +75,6 @@ class vec3:
     def length(self):
         return math.sqrt(self.length_squared());
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 86f7c5d894f17e7259a3a3a40920e4ac8b75d564
 # define the function aliases for clarity of programming
 colour = vec3
 point3 = vec3
@@ -94,7 +89,6 @@ def cross(u, v):
 
 def unit_vector(v):
     return v/v.length()
-<<<<<<< HEAD
 
 def random(min=0.0, max=1.0):
     return vec3(random_float(min, max), random_float(min, max), random_float(min, max))
@@ -104,5 +98,3 @@ def random_in_unit_sphere():
         p = random(-1, 1)
         if(p.length_squared() < 1):
             return p
-=======
->>>>>>> 86f7c5d894f17e7259a3a3a40920e4ac8b75d564
