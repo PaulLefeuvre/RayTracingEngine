@@ -2,6 +2,8 @@ from vec3 import vec3
 from rtweekend import clamp
 import math
 import sys
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
 def write_colour(surface, pos, pixel_colour, samples_per_pixel):
