@@ -50,14 +50,15 @@ MAX_DEPTH = 30
 world = hittable_list()
 
 material_ground = lambertian(colour(0.8, 0.8, 0.0))
-material_center = lambertian(colour(0.7, 0.3, 0.3))
-material_left = metal(colour(0.8, 0.8, 0.8), 0.3)
-material_right = metal(colour(0.8, 0.6, 0.2), 1.0)
+material_center = lambertian(colour(0.1, 0.2, 0.5))
+material_left = dielectric(1.5)
+material_right = metal(colour(0.8, 0.6, 0.2), 0.0)
 
-world.add(sphere(point3( 0.0, -100.5, -1.0), 100, material_ground))
-world.add(sphere(point3( 0.0,    0.0, -1.0), 0.5, material_center))
-world.add(sphere(point3(-1.0,    0.0, -1.0), 0.5, material_left))
-world.add(sphere(point3( 1.0,    0.0, -1.0), 0.5, material_right))
+world.add(sphere(point3( 0.0, -100.5, -1.0),  100, material_ground))
+world.add(sphere(point3( 0.0,    0.0, -1.0),  0.5, material_center))
+world.add(sphere(point3(-1.0,    0.0, -1.0),  0.5, material_left))
+world.add(sphere(point3(-1.0,    0.0, -1.0), -0.4, material_left))
+world.add(sphere(point3( 1.0,    0.0, -1.0),  0.5, material_right))
 
 ## Camera
 cam = camera()
@@ -81,7 +82,7 @@ if __name__ == "__main__":
                 pygame.display.update()
                 pygame.event.get()
 
-    pygame.image.save(window, "FuzzyMetalSpheres.jpg")
+    pygame.image.save(window, "HollowGlassSphere.jpg")
 
     running = True
     while running:

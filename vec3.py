@@ -115,3 +115,9 @@ def random_in_hemisphere(normal):
 
 def reflect(v, n):
     return v - 2*dot(v,n)*n
+
+def refract(uv, n, etai_over_etat):
+    cos_theta = min(dot(-uv, n), 1.0)
+    r_out_perp = etai_over_etat * (uv + cos_theta*n)
+    r_out_parallel = -math.sqrt(abs(1.0 - r_out_perp.length_squared())) * n
+    return r_out_perp + r_out_parallel
