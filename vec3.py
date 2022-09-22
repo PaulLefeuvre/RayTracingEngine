@@ -73,7 +73,7 @@ class vec3:
         return self.e[0]*self.e[0] + self.e[1]*self.e[1] + self.e[2]*self.e[2]
 
     def length(self):
-        return math.sqrt(self.length_squared());
+        return math.sqrt(self.length_squared())
 
 # define the function aliases for clarity of programming
 colour = vec3
@@ -98,3 +98,13 @@ def random_in_unit_sphere():
         p = random(-1, 1)
         if(p.length_squared() < 1):
             return p
+
+def random_unit_vector():
+    return unit_vector(random_in_unit_sphere())
+
+def random_in_hemisphere(normal):
+    in_unit_sphere = random_in_unit_sphere()
+    if(dot(in_unit_sphere, normal) > 0.0):       # In the same hemisphere as the normal
+        return in_unit_sphere
+    else:
+        return -in_unit_sphere

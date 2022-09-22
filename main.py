@@ -18,9 +18,9 @@ def ray_colour(r, world, depth):
     if(depth <= 0):
         return colour(0, 0, 0)
 
-    rec = world.hit(r, 0, infinity, rec)
+    rec = world.hit(r, 0.001, infinity, rec)
     if(rec != None):
-        target = rec.p + rec.normal + random_in_unit_sphere()
+        target = rec.p + random_in_hemisphere(rec.normal)
         return 0.5 * ray_colour(ray(rec.p, target - rec.p), world, depth-1)
     unit_direction = unit_vector(r.direction())
     t = 0.5*(unit_direction.y() + 1.0)
@@ -49,7 +49,7 @@ world.add(sphere(point3(0,-100.5,-1), 100))
 
 ## Camera
 cam = camera()
-if __name__=="__main__":
+if __name__ == "__main__":
     ## Render
     import pygame
 
