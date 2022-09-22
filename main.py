@@ -5,6 +5,7 @@ from hittable_list import *
 from rtweekend import *
 from sphere import *
 from camera import *
+from material import *
 
 import math
 import sys
@@ -20,8 +21,11 @@ def ray_colour(r, world, depth):
 
     rec = world.hit(r, 0.001, infinity, rec)
     if(rec != None):
-        target = rec.p + random_in_hemisphere(rec.normal)
-        return 0.5 * ray_colour(ray(rec.p, target - rec.p), world, depth-1)
+        scatter_check, scattered, attenuation = rec.mat_ptr.scatter(r, rec)
+        if(scatter_check == True): # The calculation works out
+            return attenuation * ray_colour(scattered, world, depth-1)
+        return colour(0, 0, 0)
+
     unit_direction = unit_vector(r.direction())
     t = 0.5*(unit_direction.y() + 1.0)
     return (1.0-t)*colour(1.0, 1.0, 1.0) + t*colour(0.5, 0.7, 1.0)
@@ -44,8 +48,16 @@ MAX_DEPTH = 30
 
 ## World
 world = hittable_list()
-world.add(sphere(point3(0,0,-1), 0.5))
-world.add(sphere(point3(0,-100.5,-1), 100))
+
+material_ground = lambertian(colour(0.8, 0.8, 0.0))
+material_center = lambertian(colour(0.7, 0.3, 0.3))
+material_left = metal(colour(0.8, 0.8, 0.8), 0.3)
+material_right = metal(colour(0.8, 0.6, 0.2), 1.0)
+
+world.add(sphere(point3( 0.0, -100.5, -1.0), 100, material_ground))
+world.add(sphere(point3( 0.0,    0.0, -1.0), 0.5, material_center))
+world.add(sphere(point3(-1.0,    0.0, -1.0), 0.5, material_left))
+world.add(sphere(point3( 1.0,    0.0, -1.0), 0.5, material_right))
 
 ## Camera
 cam = camera()
@@ -68,6 +80,8 @@ if __name__ == "__main__":
                 write_colour(window, (i-1, IMAGE_HEIGHT-j-1), result[i-1], samples_per_pixel)
                 pygame.display.update()
                 pygame.event.get()
+
+    pygame.image.save(window, "FuzzyMetalSpheres.jpg")
 
     running = True
     while running:

@@ -59,7 +59,7 @@ class vec3:
     def __mul__(u, v):
         if isinstance(v, int) or isinstance(v, float):
             return vec3(v*u.e[0], v*u.e[1], v*u.e[2])
-        elif isinstance(v, self.__class__):
+        elif isinstance(v, u.__class__):
             return vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2])
 
     def __rmul__(u, v):
@@ -74,6 +74,10 @@ class vec3:
 
     def length(self):
         return math.sqrt(self.length_squared())
+
+    def near_zero(self):
+        s = 1e-8
+        return (abs(self.e[0]) < s) and (abs(self.e[1]) < s) and (abs(self.e[2]) < s)
 
 # define the function aliases for clarity of programming
 colour = vec3
@@ -108,3 +112,6 @@ def random_in_hemisphere(normal):
         return in_unit_sphere
     else:
         return -in_unit_sphere
+
+def reflect(v, n):
+    return v - 2*dot(v,n)*n
