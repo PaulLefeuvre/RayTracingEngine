@@ -2,20 +2,38 @@ from rtweekend import *
 from vec3 import *
 from ray import *
 
+import math
+
 class camera:
+    def __init__(self, lookfrom, lookat, vup, vfov, aspect_ratio, aperture, focus_dist): # vfov is vertical field-of-view in degrees
+        self.lookfrom = lookfrom    # Point at which the camera is positioned
+        self.lookat = lookat        # Point towards which the camera is pointed - indicates direction
+        self.vup = vup              # A vector point up for the camera - shows camera orietation
+        self.vfov = vfov
+        self.aspect_ratio = aspect_ratio
+        self.aperture = aperture
+        self.focus_dist = focus_dist
 
-    ASPECT_RATIO = 16.0/9.0
-    VIEWPORT_HEIGHT = 2.0
-    VIEWPORT_WIDTH = ASPECT_RATIO * VIEWPORT_HEIGHT
-    FOCAL_LENGTH = 1.0
+        theta = degrees_to_radians(vfov)
+        h = math.tan(theta/2)
+        VIEWPORT_HEIGHT = 2.0 * h
+        VIEWPORT_WIDTH = aspect_ratio * VIEWPORT_HEIGHT
 
-    ORIGIN = point3(0, 0, 0)
-    horizontal = vec3(VIEWPORT_WIDTH, 0.0, 0.0)
-    vertical = vec3(0.0, VIEWPORT_HEIGHT, 0.0)
-    lower_left_corner = ORIGIN - horizontal/2.0 - vertical/2.0 - vec3(0.0, 0.0, FOCAL_LENGTH)
+        self.w = unit_vector(lookfrom - lookat)
+        self.u = unit_vector(cross(vup, self.w))
+        self.v = cross(self.w, self.u)
 
-    def __init__(self):
-        pass
+        self.ORIGIN = lookfrom
+        self.horizontal = focus_dist * VIEWPORT_WIDTH * self.u
+        self.vertical = focus_dist * VIEWPORT_HEIGHT * self.v
+        self.lower_left_corner = self.ORIGIN - self.horizontal/2.0 - self.vertical/2.0 - focus_dist*self.w
 
-    def get_ray(self, u, v):
-        return ray(self.ORIGIN, self.lower_left_corner + u*self.horizontal + v*self.vertical - self.ORIGIN)
+        self.lens_radius = aperture/2
+
+    def get_ray(self, s, t):
+        rd = self.lens_radius * random_in_unit_disk()
+        offset = self.u * rd.x() + self.v * rd.y()
+        return ray(
+            self.ORIGIN + offset,
+            self.lower_left_corner + s*self.horizontal + t*self.vertical - self.ORIGIN - offset
+        )

@@ -30,39 +30,80 @@ def ray_colour(r, world, depth):
     t = 0.5*(unit_direction.y() + 1.0)
     return (1.0-t)*colour(1.0, 1.0, 1.0) + t*colour(0.5, 0.7, 1.0)
 
-def render_pixel(i, j):
+def render_pixel(i, j, world):
     pixel_colour = colour(0, 0, 0)
     for s in range(samples_per_pixel):
         u = (i + random_float()) / (IMAGE_WIDTH-1.0)
         v = (j + random_float()) / (IMAGE_HEIGHT-1.0)
         r = cam.get_ray(u, v)
         pixel_colour += ray_colour(r, world, MAX_DEPTH)
+    print("Pixel ({}, {}) done".format(i, j), end='\r')
     return pixel_colour
 
+def random_scene():
+    world = hittable_list()
+
+    ground_material = lambertian(colour(0.5, 0.5, 0.5))
+    world.add(sphere(point3(0, -1000, 0), 1000, ground_material))
+
+    for a in range(-11, 11):
+        for b in range(-11, 11):
+            choose_mat = random_float()
+            center = point3(a + 0.9*random_float(), 0.2, b + 0.9*random_float())
+
+            if((center - point3(4, 0.2, 0)).length() > 0.9):
+                if(choose_mat < 0.8):
+                    # Diffuse
+                    albedo = random() * random()
+                    sphere_material = lambertian(albedo)
+                    world.add(sphere(center, 0.2, sphere_material))
+                elif(choose_mat < 0.95):
+                    # Metal
+                    albedo = random(0.5, 1)
+                    fuzz = random_float(0, 0.5)
+                    sphere_material = metal(albedo, fuzz)
+                    world.add(sphere(center, 0.2, sphere_material))
+                else:
+                    # Glass
+                    sphere_material = dielectric(1.5)
+                    world.add(sphere(center, 0.2, sphere_material))
+
+    material1 = dielectric(1.5)
+    world.add(sphere(point3(0, 1, 0), 1.0, material1))
+
+    material2 = lambertian(colour(0.4, 0.2, 0.1))
+    world.add(sphere(point3(-4, 1, 0), 1.0, material2))
+
+    material3 = metal(colour(0.7, 0.6, 0.5), 0.0)
+    world.add(sphere(point3(4, 1, 0), 1.0, material3))
+
+    material_ground = lambertian(colour(0.8, 0.8, 0.0))
+    material_center = lambertian(colour(0.1, 0.2, 0.5))
+    material_left = dielectric(1.5)
+    material_right = metal(colour(0.8, 0.6, 0.2), 0.0)
+
+    return world
+
 ## Image
-ASPECT_RATIO = 16.0/9.0
-IMAGE_WIDTH = 400
+ASPECT_RATIO = 3.0/2.0
+IMAGE_WIDTH = 1200
 IMAGE_HEIGHT = int(IMAGE_WIDTH/ASPECT_RATIO)
 samples_per_pixel = 100
-MAX_DEPTH = 30
-
-## World
-world = hittable_list()
-
-material_ground = lambertian(colour(0.8, 0.8, 0.0))
-material_center = lambertian(colour(0.1, 0.2, 0.5))
-material_left = dielectric(1.5)
-material_right = metal(colour(0.8, 0.6, 0.2), 0.0)
-
-world.add(sphere(point3( 0.0, -100.5, -1.0),  100, material_ground))
-world.add(sphere(point3( 0.0,    0.0, -1.0),  0.5, material_center))
-world.add(sphere(point3(-1.0,    0.0, -1.0),  0.5, material_left))
-world.add(sphere(point3(-1.0,    0.0, -1.0), -0.4, material_left))
-world.add(sphere(point3( 1.0,    0.0, -1.0),  0.5, material_right))
+MAX_DEPTH = 20
 
 ## Camera
-cam = camera()
+lookfrom = point3(13, 2, 3)
+lookat = point3(0, 0, 0)
+vup = vec3(0, 1, 0)
+dist_to_focus = 10.0
+aperture = 0.1
+
+cam = camera(lookfrom, lookat, vup, 20, ASPECT_RATIO, aperture, dist_to_focus)
+
 if __name__ == "__main__":
+    ## CREATE A MASSIVE WORLD
+    world = random_scene()
+
     ## Render
     import pygame
 
@@ -72,9 +113,10 @@ if __name__ == "__main__":
     pygame.display.update()
 
     pixel_range = range(1, IMAGE_WIDTH+1)
+    print("Starting render.")
     for j in range(IMAGE_HEIGHT-1, 0, -1):
         with multiprocessing.Pool(multiprocessing.cpu_count()-1) as pool:
-            result = pool.starmap(render_pixel, [(i, j) for i in pixel_range])
+            result = pool.starmap(render_pixel, [(i, j, world) for i in pixel_range])
             pool.close()
             pool.join()
             for i in pixel_range:
@@ -82,7 +124,7 @@ if __name__ == "__main__":
                 pygame.display.update()
                 pygame.event.get()
 
-    pygame.image.save(window, "HollowGlassSphere.jpg")
+    pygame.image.save(window, "CamTest.jpg")
 
     running = True
     while running:

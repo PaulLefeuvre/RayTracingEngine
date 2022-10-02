@@ -113,6 +113,13 @@ def random_in_hemisphere(normal):
     else:
         return -in_unit_sphere
 
+def random_in_unit_disk():
+    while(True):
+        p = vec3(random_float(-1, 1), random_float(-1, 1), 0)
+        if (p.length_squared() >= 1):
+            continue
+        return p
+
 def reflect(v, n):
     return v - 2*dot(v,n)*n
 
