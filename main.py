@@ -28,7 +28,7 @@ def ray_colour(r, world, depth):
 
     unit_direction = unit_vector(r.direction())
     t = 0.5*(unit_direction.y() + 1.0)
-    return (1.0-t)*colour(1.0, 1.0, 1.0) + t*colour(0.5, 0.7, 1.0)
+    return (1.0-t)*colour(0, 0, 0) + t*colour(1, 1, 1)
 
 def render_pixel(i, j, world):
     pixel_colour = colour(0, 0, 0)
@@ -84,11 +84,42 @@ def random_scene():
 
     return world
 
+def space_scene():
+    world = hittable_list()
+
+    # ground_material = lambertian(colour(0.5, 0.5, 0.5))
+    # world.add(sphere(point3(-1000, 0, 0), 1000, ground_material))
+    # world.add(sphere(point3(1000, 0, 0), 1000, ground_material))
+
+    material_center2 = lambertian(colour(0.7, 0.1, 0))
+    world.add(sphere(point3(0, 0, 0), 1, material_center2))
+
+    material_spheres1 = metal(colour(1, 0.8, 0), 0.8)
+    world.add(sphere(point3(-1, 1, 1), 0.4, material_spheres1))
+    world.add(sphere(point3(1, -1, -1), 0.4, material_spheres1))
+
+    material_spheres2 = lambertian(colour(1, 1, 1))
+    world.add(sphere(point3(-1.4, 1.4, 1.4), 0.1, material_spheres2))
+    world.add(sphere(point3(-1.6, 1.6, 1.6), 0.1, material_spheres2))
+    world.add(sphere(point3(1.4, -1.4, -1.4), 0.1, material_spheres2))
+    world.add(sphere(point3(1.6, -1.6, -1.6), 0.1, material_spheres2))
+
+    ring_sphere = metal(colour(0.2, 0.2, 0.2), 0.9)
+    world.add(sphere(point3(1.2, 0, 0), 0.1, ring_sphere))
+    world.add(sphere(point3(-1.2, 0, 0), 0.1, ring_sphere))
+    world.add(sphere(point3(0, 0, 1.2), 0.1, ring_sphere))
+    world.add(sphere(point3(0, 0, -1.2), 0.1, ring_sphere))
+    world.add(sphere(point3(0, 1.2, 0), 0.1, ring_sphere))
+    world.add(sphere(point3(0, -1.2, 0), 0.1, ring_sphere))
+
+
+    return world
+
 ## Image
-ASPECT_RATIO = 3.0/2.0
-IMAGE_WIDTH = 1200
+ASPECT_RATIO = 16.0/9.0
+IMAGE_WIDTH = 400
 IMAGE_HEIGHT = int(IMAGE_WIDTH/ASPECT_RATIO)
-samples_per_pixel = 100
+samples_per_pixel = 50
 MAX_DEPTH = 20
 
 ## Camera
@@ -102,7 +133,7 @@ cam = camera(lookfrom, lookat, vup, 20, ASPECT_RATIO, aperture, dist_to_focus)
 
 if __name__ == "__main__":
     ## CREATE A MASSIVE WORLD
-    world = random_scene()
+    world = space_scene()
 
     ## Render
     import pygame
@@ -124,7 +155,7 @@ if __name__ == "__main__":
                 pygame.display.update()
                 pygame.event.get()
 
-    pygame.image.save(window, "CamTest.jpg")
+    pygame.image.save(window, "FinalRender.jpg")
 
     running = True
     while running:
